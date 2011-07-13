@@ -1,0 +1,82 @@
+zookeeper (3.3.3+dfsg2-1) unstable; urgency=low
+
+  * Re-enable python 2.7 modules (Closes: #633690):
+    - debian/control: X-Python-Version: >= 2.6
+  * debian/copyright: added EPL-1.0 for src/contrib/zooinspector/icons/*.
+  * debian/patches/fixes/ZOOKEEPER-1033: Cherry picked patch from 3.4.0 
+    so that headers for c bindings are installed to /usr/include/zookeeper.
+  * Purged additional non-DFSG files from upstream source:
+    - src/java/test/data/* : invalid snapshot and upgrade testing data.
+
+ -- James Page <james.page@ubuntu.com>  Wed, 13 Jul 2011 10:01:47 +0100
+
+zookeeper (3.3.3+dfsg1-1) unstable; urgency=low
+
+  * New upstream release.
+  * Resolve FTBFS on mips and hppa - platforms should not be supported 
+    as zookeeper needs default-jdk >= 1:1.6 (Closes: #626020,#594970).
+  * Added myself to Uploaders.
+  * Removed Thomas Koch from Uploaders - thanks for all of your work.
+  * Bumped Standards-Version: 3.9.2; no changes.
+  * Transition to dh_python2.
+  * Fixed FTBFS due to -Werror actually working and causing build 
+    failures in gcc >= 4.6.1 (Closes: #625441).
+  * debian/bin/zkPurgeTxnLog.sh: Switch DATADIR and DATALOGDIR to match
+    parameter ordering in Zookeeper code (Closes: #601383) - thanks to 
+    Paul Paradise for identifying this issue and the fix.
+  * debian/copyright: upgrade to DEP-5 format.
+
+ -- James Page <james.page@ubuntu.com>  Tue, 12 Jul 2011 16:56:06 +0100
+
+zookeeper (3.3.1+dfsg1-2) unstable; urgency=low
+
+  * FIX: cronjob, init.d fail after package removal. Closes: #582757
+
+ -- Thomas Koch <thomas.koch@ymc.ch>  Tue, 01 Jun 2010 13:25:34 +0200
+
+zookeeper (3.3.1+dfsg1-1) unstable; urgency=low
+
+  * new upstream version
+  * started over testing a new git layout for packaging
+
+ -- Thomas Koch <thomas.koch@ymc.ch>  Tue, 18 May 2010 09:36:16 +0200
+
+zookeeper (3.3.0+dfsg1-1) unstable; urgency=low
+
+  * new upstream version
+  * packaged zooinspector contrib
+  * packages zktreeutil contrib
+  * Made debian/rules a bit more sane
+
+ -- Thomas Koch <thomas.koch@ymc.ch>  Tue, 27 Apr 2010 13:52:30 +0200
+
+zookeeper (3.2.2+dfsg3-3) unstable; urgency=low
+
+  * remove /var/run/zookeeper when purging the package
+  * zookeeperd.init creates /var/run/zookeeper now (Closes: #569972)
+  * cronjob to purge old zookeeper data
+  * more elaborate config example
+  * superfluous /var/run/zookeeper entry in zookeeper.dirs
+  * fix lintian tag debian-rules-ignores-make-clean-error
+  * don't install executables to /usr/bin without manpages and proper
+    names
+  * Use Built-in functions for atomic memory access instead of 
+    hard-coded assembler. Thx Matthias Klose. Closes: #568618.
+  * move executables to /usr/lib/... instead of /usr/share/...
+
+ -- Thomas Koch <thomas.koch@ymc.ch>  Wed, 24 Feb 2010 15:02:09 +0100
+
+zookeeper (3.2.2+dfsg3-2) unstable; urgency=low
+
+  * Build C and Python bindings. Thanks to Matthias Klose.
+  * Corrected dependencies versions in debian/control.
+
+ -- Thomas Koch <thomas.koch@ymc.ch>  Thu, 28 Jan 2010 12:07:38 +0100
+
+zookeeper (3.2.2+dfsg3-1) unstable; urgency=low
+
+  * New repackaging after FTP rejection due to overseen license issues.
+  * New repackaging of upstream tarball to exclude generated code. 
+  * Initial release. (Closes: #561947)
+
+ -- Thomas Koch <thomas.koch@ymc.ch>  Fri, 27 Jan 2010 16:41:22 +0100

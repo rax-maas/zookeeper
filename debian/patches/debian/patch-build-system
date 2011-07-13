@@ -1,0 +1,161 @@
+Index: zookeeper/build.xml
+===================================================================
+--- zookeeper.orig/build.xml	2011-07-12 15:03:47.576170738 +0100
++++ zookeeper/build.xml	2011-07-12 15:03:55.006170734 +0100
+@@ -25,7 +25,7 @@
+     <property environment="env"/>
+     
+     <property name="version" value="3.3.3" />
+-    <property name="final.name" value="${name}-${version}"/>
++    <property name="final.name" value="${name}"/>
+     <property name="revision.dir" value="${basedir}/.revision" />
+     <property name="revision.properties" value="revision.properties" />
+     <property file="${basedir}/src/java/${revision.properties}" />
+@@ -169,21 +169,11 @@
+     <path id="java.classpath">
+       <pathelement location="${build.classes}"/>
+       <!-- allow the user to override (e.g. if there are local versions) -->
+-      <fileset dir="${additional.lib.dir}">
+-        <include name="${additional.lib.dir.includes}" />
+-        <exclude name="${additional.lib.dir.excludes}" />
++      <fileset dir="/usr/share/java">
++        <include name="log4j-1.2.jar" />
++        <include name="jline.jar" />
++        <include name="xercesImpl.jar" />
+       </fileset>
+-      <fileset dir="${lib.dir}">
+-        <include name="${lib.dir.includes}" />
+-        <exclude name="${lib.dir.excludes}" />
+-      </fileset>
+-      <fileset dir="${ant.home}/lib">
+-        <include name="ant.jar" />
+-      </fileset>
+-      <fileset dir="${ivy.lib}">
+-        <include name="**/*.jar" />
+-      </fileset>
+-      <pathelement path="${clover.jar}" />
+     </path>
+ 
+     <path id="test.java.classpath">
+@@ -223,7 +213,7 @@
+                   targetfile="${src_generated.dir}/.generated"/>
+     </target>
+ 
+-    <target name="compile_jute" depends="jute,compile_jute_uptodate" unless="juteBuild.notRequired">
++    <target name="compile_jute" depends="jute,compile_jute_uptodate" unless="">
+         <mkdir dir="${src_generated.dir}" />
+         <mkdir dir="${csrc_generated.dir}" />
+         <java classname="org.apache.jute.compiler.generated.Rcc" fork="true" dir="${src_generated.dir}">
+@@ -325,7 +315,7 @@
+       <ivy:cachepath pathid="releaseaudit-classpath" conf="releaseaudit"/>
+     </target>
+ 
+-    <target name="compile" depends="ivy-retrieve,clover,build-generated">
++    <target name="compile" depends="build-generated">
+         <javac srcdir="${java.src.dir}" destdir="${build.classes}" 
+                target="${javac.target}" debug="on">
+             <classpath refid="java.classpath"/>
+Index: zookeeper/src/contrib/bookkeeper/build.xml
+===================================================================
+--- zookeeper.orig/src/contrib/bookkeeper/build.xml	2011-07-12 15:03:47.546170738 +0100
++++ zookeeper/src/contrib/bookkeeper/build.xml	2011-07-12 15:03:55.006170734 +0100
+@@ -34,7 +34,7 @@
+ 
+   <target name="setjarname">
+     <property name="jarname"
+-              value="${build.dir}/zookeeper-${version}-${name}.jar"/>
++              value="${build.dir}/zookeeper-${name}.jar"/>
+   </target>
+ 
+   <target name="init" depends="checkMainCompiled, zookeeperbuildcontrib.init"/>
+Index: zookeeper/src/contrib/build-contrib.xml
+===================================================================
+--- zookeeper.orig/src/contrib/build-contrib.xml	2011-07-12 15:03:47.526170738 +0100
++++ zookeeper/src/contrib/build-contrib.xml	2011-07-12 15:03:55.006170734 +0100
+@@ -70,25 +70,14 @@
+ 
+   <path id="classpath">
+     <pathelement location="${build.classes}"/>
+-    <!-- allow the user to override (e.g. if there are local versions) -->
+-    <fileset dir="${additional.lib.dir}">
+-      <include name="${additional.lib.dir.includes}" />
+-      <exclude name="${additional.lib.dir.excludes}" />
++    <fileset dir="/usr/share/java">
++      <include name="log4j-1.2.jar" />
++      <include name="jline.jar" />
++      <include name="xercesImpl.jar" />
++      <include name="netty.jar" />
+     </fileset>
+-    <fileset refid="lib.jars"/>
++    <!-- allow the user to override (e.g. if there are local versions) -->
+     <pathelement location="${zk.root}/build/classes"/>
+-    <fileset dir="${ivy.lib}">
+-      <include name="**/*.jar" />
+-    </fileset>
+-    <fileset dir="${ivy.test.lib}">
+-      <include name="**/*.jar" />
+-    </fileset>
+-    <fileset dir="${zk.root}/src/java/lib">
+-      <include name="**/*.jar" />
+-    </fileset>
+-    <fileset dir="${ant.home}/lib">
+-      <include name="ant.jar" />
+-    </fileset>
+   </path>
+ 
+   <!-- ====================================================== -->
+@@ -133,7 +122,7 @@
+   <target name="jar" depends="compile" unless="skip.contrib">
+     <echo message="contrib: ${name}"/>
+     <jar
+-      jarfile="${build.dir}/zookeeper-${version}-${name}.jar"
++      jarfile="${build.dir}/zookeeper-${name}.jar"
+       basedir="${build.classes}"      
+     />
+   </target>
+@@ -211,15 +200,9 @@
+   </target>
+ 
+   <target name="ivy-retrieve" depends="init,ivy-init">
+-    <ivy:retrieve settingsRef="${ant.project.name}" type="jar" conf="default"
+-                  pattern="${ivy.lib}/[artifact]-[revision].[ext]"/>
+-    <ivy:retrieve settingsRef="${ant.project.name}" type="bundle" conf="default"
+-  				  pattern="${ivy.lib}/[artifact]-[revision].[ext]"/>
+   </target>
+ 
+   <target name="ivy-retrieve-test" depends="init,ivy-init">
+-    <ivy:retrieve settingsRef="${ant.project.name}" type="jar" conf="test"
+-                  pattern="${ivy.test.lib}/[artifact]-[revision].[ext]"/>
+   </target>
+ 
+ 
+Index: zookeeper/src/contrib/zooinspector/build.xml
+===================================================================
+--- zookeeper.orig/src/contrib/zooinspector/build.xml	2011-07-12 15:03:47.556170738 +0100
++++ zookeeper/src/contrib/zooinspector/build.xml	2011-07-12 15:04:31.996170711 +0100
+@@ -20,7 +20,7 @@
+ 
+ 
+ 	<target name="setjarname">
+-		<property name="jarname" value="${build.dir}/zookeeper-${version}-${name}.jar" />
++		<property name="jarname" value="${build.dir}/zookeeper-${name}.jar" />
+ 	</target>
+ 
+ 	<target name="init" depends="checkMainCompiled, zookeeperbuildcontrib.init">
+@@ -41,7 +41,7 @@
+ 			<fileset file="${basedir}/lib/log4j.properties" />
+ 		</copy>
+ 		<copy todir="${build.dir}/lib">
+-			<fileset file="../../../build/zookeeper-3.3.1.jar" />
++			<fileset file="../../../build/zookeeper-3.3.3.jar" />
+ 		</copy>
+ 		<copy todir="${build.dir}">
+ 			<fileset dir="${basedir}" includes="*.*" excludes="build.xml,ivy.xml" />
+@@ -55,7 +55,6 @@
+ 		<jar jarfile="${jarname}">
+ 			<manifest>
+ 				<attribute name="Main-Class" value="org.apache.zookeeper.inspector.ZooInspector" />
+-				<attribute name="Class-Path" value="lib/log4j-1.2.15.jar lib/TableLayout-20050920.jar lib/zookeeper-3.3.1.jar lib/jToaster-1.0.4.jar lib" />
+ 				<attribute name="Built-By" value="${user.name}" />
+ 				<attribute name="Built-At" value="${build.time}" />
+ 				<attribute name="Built-On" value="${host.name}" />

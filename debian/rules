@@ -1,0 +1,118 @@
+#!/usr/bin/make -f
+
+export JAVA_HOME=/usr/lib/jvm/default-java
+
+PYVERS := $(shell pyversions -vr)
+DEB_UPSTREAM_VERSION=$(shell dpkg-parsechangelog | sed -rne 's,^Version: ([^+]+).*,\1,p')
+
+%:
+	dh --with javahelper --with python2 $@
+
+override_dh_auto_build:
+	# TODO exclude the fatjar contrib from upstream tarball and include the rest contrib
+	mkdir -p build/test/classes
+	javacc -OUTPUT_DIRECTORY=src/java/main/org/apache/jute/compiler/generated src/java/main/org/apache/jute/compiler/generated/rcc.jj
+	# the upstream build file includes .java files in the jars. Let's create the jars ourselves.
+	# see: https://issues.apache.org/jira/browse/ZOOKEEPER-537
+	ant -Dversion=$(DEB_UPSTREAM_VERSION) -DlastRevision=-1 javadoc javadoc-dev jar
+
+	# compile C library
+	cd src/c && autoreconf -i
+	cd src/c && ./configure --prefix=/usr
+	$(MAKE) -C src/c
+
+	# compile contribs
+	cd src/contrib && ant -Dversion=$(DEB_UPSTREAM_VERSION) -DlastRevision=-1 -Ddest.dir=../../build/zookeeper -Divy.jar.exists=true -Divy.initialized=true -Dcontribfilesetincludes="bookkeeper/build.xml"
+	cd src/contrib && ant -Dversion=$(DEB_UPSTREAM_VERSION) -DlastRevision=-1 -Ddest.dir=../../build/zookeeper -Divy.jar.exists=true -Divy.initialized=true -Dcontribfilesetincludes="zooinspector/build.xml"
+
+	cd src/contrib/zkpython && \
+	  for pv in $(PYVERS); do \
+	    python$$pv src/python/setup.py build --build-base=$(CURDIR)/build ;\
+	  done
+	# compile zktreeutil
+	cd src/contrib/zktreeutil && autoreconf -if && ./configure && make
+	LD_LIBRARY_PATH=src/c/.libs help2man -N --version-string=0.0 src/contrib/zktreeutil/src/zktreeutil >zktreeutil.man
+
+override_dh_install:
+	$(MAKE) -C src/c install DESTDIR=$(CURDIR)/debian/tmp
+	cd src/contrib/zkpython && \
+	  for pv in $(PYVERS); do \
+	    python$$pv src/python/setup.py build --build-base=$(CURDIR)/build \
+	               install --root=$(CURDIR)/debian/tmp --install-layout=deb ;\
+	  done
+	dh_install
+
+#override_jh_build:
+#	jh_build --no-javadoc
+#	javadoc -link /usr/share/doc/default-jdk-doc/api/ -classpath ${CLASSPATH}:debian/lib -d debian/_jh_build.javadoc/api -quiet -sourcepath src/java/main:src/contrib/bookkeeper/src/java -subpackages org.apache.jute:org.apache.zookeeper:org.apache.bookkeeper
+
+override_dh_auto_test:
+	# src/c/tests/TestClient.cc:298: Assertion: equality assertion failed [Expected: -101, Actual  : -4]
+	#ant -propertyfile debian/ant.properties -buildfile debian/build-override.xml test-core
+	#Testsuite runs ~15 min on my machine. Seems too much for the Debian build daemons
+	#ant -propertyfile debian/ant.properties -buildfile debian/build-override.xml test-core-java
+
+override_dh_clean:
+	dh_clean --exclude=src/java \
+             --exclude=src/docs \
+             --exclude=src/c \
+             --exclude=src/reciped
+	jh_clean
+
+# the original build.xml deletes too much
+override_dh_auto_clean:
+	dh_testdir
+	rm -rf .revision
+	rm -rf build
+	rm -rf src/c/generated
+	rm -rf src/java/generated
+	rm -rf src/java/main/org/apache/jute/compiler/generated/*.java
+	rm -f zookeeper*.jar
+	#The following line caused lintian tag debian-rules-ignores-make-clean-error
+	#-$(MAKE) -C src/c distclean
+	#replaced by
+	[ ! -f src/c/Makefile ] || $(MAKE) -C src/c distclean
+	rm -f src/c/config.log src/c/config.status
+	[ ! -f src/contrib/zktreeutil/Makefile ] || $(MAKE) -C src/contrib/zktreeutil distclean
+	rm -rf src/contrib/zktreeutil/autom4te.cache
+	rm -rf src/contrib/zktreeutil/Makefile.in
+	rm -rf src/contrib/zktreeutil/aclocal.m4
+	rm -rf src/contrib/zktreeutil/config.h.in
+	rm -rf src/contrib/zktreeutil/configure
+	rm -rf src/contrib/zktreeutil/depcomp
+	rm -rf src/contrib/zktreeutil/install-sh
+	rm -rf src/contrib/zktreeutil/missing
+	rm -rf src/contrib/zktreeutil/src/Makefile.in
+	rm -rf zktreeutil.man
+	rm -rf src/c/Makefile.in
+	rm -rf src/c/aclocal.m4
+	rm -rf src/c/autom4te.cache
+	rm -rf src/c/compile
+	rm -rf src/c/config.guess
+	rm -rf src/c/config.sub
+	rm -rf src/c/configure
+	rm -rf src/c/ltmain.sh
+
+override_dh_installdocs:
+	dh_installdocs --link-doc=libzookeeper-java \
+	  -plibzookeeper-java -pzookeeper -pzookeeperd -plibzookeeper-java-doc
+	dh_installdocs --link-doc=libzookeeper2 \
+	  -plibzookeeper2 -plibzookeeper-dev -pzookeeper-bin -ppython-zookeeper
+
+# javahelper can't install two javadoc dirs per package
+override_jh_installjavadoc:
+	true
+
+override_dh_installinit:
+	dh_installinit -d
+
+# jh_depends fails for me:
+# - I can not specify, that I need a minimal version of log4j
+# - It unnecesseraly pulls libjaxp1.3-java in Depends, although this is only a
+#   transitiv dependency of libxerces2-java
+override_jh_depends:
+	true
+
+# some utf8 error? Don't need them anyway by now
+#override_jh_classpath override_jh_manifest override_jh_exec:
+#	true

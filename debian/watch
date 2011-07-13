@@ -1,0 +1,4 @@
+version=3
+opts=dversionmangle=s/\+dfsg\d+$// \
+  http://www.apache.org/dist/zookeeper/stable/zookeeper-([0-9.]+).tar.gz \
+  debian

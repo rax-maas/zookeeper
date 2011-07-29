@@ -1,5 +1,4 @@
 debian/add_jtoaster_source_to_zooinspector
 debian/patch-build-system
 fixes/ZOOKEEPER-705
-fixes/ZOOKEEPER-1117
 fixes/ZOOKEEPER-1033

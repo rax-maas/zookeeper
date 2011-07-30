@@ -6,7 +6,7 @@ PYVERS := $(shell pyversions -vr)
 DEB_UPSTREAM_VERSION=$(shell dpkg-parsechangelog | sed -rne 's,^Version: ([^+]+).*,\1,p')
 
 %:
-	dh --with javahelper --with python2 $@
+	dh --with javahelper $@
 
 override_dh_auto_build:
 	# TODO exclude the fatjar contrib from upstream tarball and include the rest contrib

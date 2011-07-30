@@ -104,7 +104,7 @@ override_jh_installjavadoc:
 	true
 
 override_dh_installinit:
-	dh_installinit -d
+	dh_installinit
 
 # jh_depends fails for me:
 # - I can not specify, that I need a minimal version of log4j

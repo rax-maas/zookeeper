@@ -25,13 +25,13 @@ override_dh_auto_build:
 	cd src/contrib && ant -Dversion=$(DEB_UPSTREAM_VERSION) -DlastRevision=-1 -Ddest.dir=../../build/zookeeper -Divy.jar.exists=true -Divy.initialized=true -Dcontribfilesetincludes="bookkeeper/build.xml"
 	cd src/contrib && ant -Dversion=$(DEB_UPSTREAM_VERSION) -DlastRevision=-1 -Ddest.dir=../../build/zookeeper -Divy.jar.exists=true -Divy.initialized=true -Dcontribfilesetincludes="zooinspector/build.xml"
 
-	cd src/contrib/zkpython && \
-	  for pv in $(PYVERS); do \
-	    python$$pv src/python/setup.py build --build-base=$(CURDIR)/build ;\
-	  done
-	# compile zktreeutil
-	cd src/contrib/zktreeutil && autoreconf -if && ./configure && make
-	LD_LIBRARY_PATH=src/c/.libs help2man -N --version-string=0.0 src/contrib/zktreeutil/src/zktreeutil >zktreeutil.man
+	#cd src/contrib/zkpython && \
+	#  for pv in $(PYVERS); do \
+	#    python$$pv src/python/setup.py build --build-base=$(CURDIR)/build ;\
+	#  done
+	## compile zktreeutil
+	#cd src/contrib/zktreeutil && autoreconf -if && ./configure && make
+	#LD_LIBRARY_PATH=src/c/.libs help2man -N --version-string=0.0 src/contrib/zktreeutil/src/zktreeutil >zktreeutil.man
 
 override_dh_install:
 	$(MAKE) -C src/c install DESTDIR=$(CURDIR)/debian/tmp

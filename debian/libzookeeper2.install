@@ -1,1 +1,1 @@
-debian/tmp/usr/lib/libzookeeper_mt.so.* usr/lib
+debian/tmp/usr/lib/libzookeeper_st.so.* usr/lib

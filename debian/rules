@@ -35,11 +35,11 @@ override_dh_auto_build:
 
 override_dh_install:
 	$(MAKE) -C src/c install DESTDIR=$(CURDIR)/debian/tmp
-	cd src/contrib/zkpython && \
-	  for pv in $(PYVERS); do \
-	    python$$pv src/python/setup.py build --build-base=$(CURDIR)/build \
-	               install --root=$(CURDIR)/debian/tmp --install-layout=deb ;\
-	  done
+	#cd src/contrib/zkpython && \
+	#  for pv in $(PYVERS); do \
+	#    python$$pv src/python/setup.py build --build-base=$(CURDIR)/build \
+	#               install --root=$(CURDIR)/debian/tmp --install-layout=deb ;\
+	#  done
 	dh_install
 
 #override_jh_build:

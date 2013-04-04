@@ -1,3 +1,16 @@
+Release 3.4.5 - 2012-09-30
+
+Backward compatible changes:
+
+BUGFIXES:
+
+  ZOOKEEPER-1376. zkServer.sh does not correctly check for
+  $SERVER_JVMFLAGS (Skye W-M via henryr)
+
+  ZOOKEEPER-1550. ZooKeeperSaslClient does not finish anonymous login on
+  OpenJDK. (Eugene Koontz via mahadev)
+
+
 Release 3.4.4 - 2012-09-17 
 
 Backward compatible changes:
